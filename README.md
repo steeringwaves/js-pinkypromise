@@ -1,8 +1,8 @@
-# ts-github-template
+# @steeringwaves/pinkypromise
 
 ![workflow](https://github.com/github/docs/actions/workflows/test.yml/badge.svg)
 
-A typescript template for github.
+A typescript promise library built for the real world.
 
 ## Example
 
