@@ -3,9 +3,8 @@
 /* eslint-disable no-unused-vars */
 const BluebirdPromise = require("bluebird");
 const Context = require("@steeringwaves/context").default;
+const Sleep = require("@steeringwaves/sleep").default;
 const PinkyPromise = require("../index").default;
-// const Sleep = require("@steeringwaves/sleep").default;
-const Sleep = require("../../js-sleep/index").default;
 
 BluebirdPromise.config({
 	// Enable cancellation
