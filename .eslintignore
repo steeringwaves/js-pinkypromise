@@ -1,0 +1,8 @@
+**/node_modules/*
+**/Archive/*
+**/build/*
+**/coverage/*
+**/debug/*
+Overlay/Files/**
+AATSToolkit/src/applets/v7CustomParser/sandbox/*
+AATSToolkit/src/applets/jssh/sandbox/*
