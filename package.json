@@ -62,7 +62,6 @@
 	},
 	"dependencies": {
 		"@steeringwaves/context": "^0.0.1",
-		"@steeringwaves/sleep": "^0.0.1",
 		"bluebird": "^3.7.2"
 	}
 }

@@ -3,7 +3,6 @@
 /* eslint-disable no-unused-vars */
 const BluebirdPromise = require("bluebird");
 const Context = require("@steeringwaves/context").default;
-const Sleep = require("@steeringwaves/sleep").default;
 const PinkyPromise = require("../index").default;
 
 BluebirdPromise.config({
@@ -12,6 +11,13 @@ BluebirdPromise.config({
 	// Enable async hooks
 	asyncHooks: true
 });
+
+function Sleep(ms) {
+	let timer;
+	return new BluebirdPromise((resolve) => {
+		timer = setTimeout(resolve, ms);
+	});
+}
 
 let fakeTimeInterval;
 
@@ -505,89 +511,90 @@ describe("PinkyPromise fake time tests", () => {
 		expect(callback).toHaveBeenCalledTimes(3);
 	});
 
-	it("should verify native promise is cancelled properly when Sleep is given context", async () => {
-		const callback = jest.fn();
+	// TODO test this in sleep
+	// it("should verify native promise is cancelled properly when Sleep is given context", async () => {
+	// 	const callback = jest.fn();
 
-		const parentCtx = new Context();
-		const ctx = new Context({ Parent: parentCtx, Timeout: 1500 });
+	// 	const parentCtx = new Context();
+	// 	const ctx = new Context({ Parent: parentCtx, Timeout: 1500 });
 
-		// At this point in time, the callback should not have been called yet
-		expect(callback).not.toBeCalled();
+	// 	// At this point in time, the callback should not have been called yet
+	// 	expect(callback).not.toBeCalled();
 
-		await expect(
-			new PinkyPromise(
-				new Promise((resolve, reject) => {
-					callback(); // should be called
-					Sleep(500)
-						.setContext(ctx)
-						.then(() => {
-							callback(); // should be called
-							resolve();
-						})
-						.catch((e) => reject(e));
-				})
-			)
-		).resolves.not.toThrow();
-		expect(callback).toHaveBeenCalledTimes(2);
+	// 	await expect(
+	// 		new PinkyPromise(
+	// 			new Promise((resolve, reject) => {
+	// 				callback(); // should be called
+	// 				Sleep(500)
+	// 					.setContext(ctx)
+	// 					.then(() => {
+	// 						callback(); // should be called
+	// 						resolve();
+	// 					})
+	// 					.catch((e) => reject(e));
+	// 			})
+	// 		)
+	// 	).resolves.not.toThrow();
+	// 	expect(callback).toHaveBeenCalledTimes(2);
 
-		await expect(
-			new PinkyPromise(
-				new Promise((resolve, reject) => {
-					callback(); // should be called
-					Sleep(2000)
-						.setContext(ctx)
-						.then(() => {
-							callback(); // should not be called
-							resolve();
-						})
-						.catch((e) => reject(e));
-				})
-			)
-		).rejects.toThrow(/context/gi);
+	// 	await expect(
+	// 		new PinkyPromise(
+	// 			new Promise((resolve, reject) => {
+	// 				callback(); // should be called
+	// 				Sleep(2000)
+	// 					.setContext(ctx)
+	// 					.then(() => {
+	// 						callback(); // should not be called
+	// 						resolve();
+	// 					})
+	// 					.catch((e) => reject(e));
+	// 			})
+	// 		)
+	// 	).rejects.toThrow(/context/gi);
 
-		expect(callback).toHaveBeenCalledTimes(3);
-	});
+	// 	expect(callback).toHaveBeenCalledTimes(3);
+	// });
 
-	it("should verify async is cancelled properly when Sleep is given context", async () => {
-		const callback = jest.fn();
+	// it("should verify async is cancelled properly when Sleep is given context", async () => {
+	// 	const callback = jest.fn();
 
-		const parentCtx = new Context();
-		const ctx = new Context({ Parent: parentCtx, Timeout: 1500 });
+	// 	const parentCtx = new Context();
+	// 	const ctx = new Context({ Parent: parentCtx, Timeout: 1500 });
 
-		// At this point in time, the callback should not have been called yet
-		expect(callback).not.toBeCalled();
+	// 	// At this point in time, the callback should not have been called yet
+	// 	expect(callback).not.toBeCalled();
 
-		await expect(
-			new PinkyPromise(async (resolve, reject) => {
-				callback(); // should be called
-				try {
-					await Sleep(500).setContext(ctx);
-				} catch (error) {
-					reject(error);
-					return;
-				}
-				callback(); // should be called
-				resolve();
-			})
-		).resolves.not.toThrow();
-		expect(callback).toHaveBeenCalledTimes(2);
+	// 	await expect(
+	// 		new PinkyPromise(async (resolve, reject) => {
+	// 			callback(); // should be called
+	// 			try {
+	// 				await Sleep(500).setContext(ctx);
+	// 			} catch (error) {
+	// 				reject(error);
+	// 				return;
+	// 			}
+	// 			callback(); // should be called
+	// 			resolve();
+	// 		})
+	// 	).resolves.not.toThrow();
+	// 	expect(callback).toHaveBeenCalledTimes(2);
 
-		await expect(
-			new PinkyPromise(async (resolve, reject) => {
-				callback(); // should be called
-				try {
-					await Sleep(2000).setContext(ctx);
-				} catch (error) {
-					reject(error);
-					return;
-				}
-				callback(); // should not be called
-				resolve();
-			})
-		).rejects.toThrow(/context/gi);
+	// 	await expect(
+	// 		new PinkyPromise(async (resolve, reject) => {
+	// 			callback(); // should be called
+	// 			try {
+	// 				await Sleep(2000).setContext(ctx);
+	// 			} catch (error) {
+	// 				reject(error);
+	// 				return;
+	// 			}
+	// 			callback(); // should not be called
+	// 			resolve();
+	// 		})
+	// 	).rejects.toThrow(/context/gi);
 
-		expect(callback).toHaveBeenCalledTimes(3);
-	});
+	// 	expect(callback).toHaveBeenCalledTimes(3);
+	// });
 
 	it("should verify async is cancelled properly when Sleep is not given context, but PinkyPromise is", async () => {
 		const callback = jest.fn();
