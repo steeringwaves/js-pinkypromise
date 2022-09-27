@@ -167,27 +167,6 @@ export default function PinkyPromise<T>(
 						selfReject(e);
 					});
 				return self;
-
-				// if (cancelCallback instanceof Promise || cancelCallback instanceof BluebirdPromise) {
-				// 	cancelCallback(new Canceled(reason))
-				// 		.then(() => {
-				// 			selfReject(new Canceled(reason));
-				// 		})
-				// 		.catch((e: any) => {
-				// 			selfReject(e);
-				// 		});
-				// 	return self;
-				// }
-				// if ("function" === typeof cancelCallback) {
-				// 	Promise.resolve(cancelCallback(new Canceled(reason)))
-				// 		.then(() => {
-				// 			selfReject(new Canceled(reason));
-				// 		})
-				// 		.catch((e: any) => {
-				// 			selfReject(e);
-				// 		});
-				// 	return self;
-				// }
 			} catch (e: any) {
 				// throw user error
 				selfReject(e);
