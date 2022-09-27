@@ -34,6 +34,10 @@ export interface PinkyPromiseOptions {
 	OnCancel?: (canceled: Canceled) => any;
 }
 
+export interface PinkyPromiseOnCancel {
+	(canceled: Canceled): any;
+}
+
 export default function PinkyPromise<T>(
 	promise: Promise<T> | BluebirdPromise<T> | any,
 	opts?: PinkyPromiseOptions
@@ -45,7 +49,7 @@ export default function PinkyPromise<T>(
 	let cancelled: boolean = false;
 	let ongoing: Promise<T> | BluebirdPromise<T> | any = null;
 	let whileCheck: () => any | BluebirdPromise<T> | Promise<T>;
-	let cancelCallback: (canceled: Canceled) => any;
+	let cancelCallback: PinkyPromiseOnCancel[] = [];
 	let intervalMs: number = 0;
 	let attempts: number = 0;
 	let retryAttempts: number = 0;
@@ -90,8 +94,8 @@ export default function PinkyPromise<T>(
 		return self;
 	};
 
-	const onCancel: (callback: (canceled: Canceled) => any) => Cancelable<T> = (callback: (canceled: Canceled) => any) => {
-		cancelCallback = callback;
+	const onCancel: (callback: PinkyPromiseOnCancel) => Cancelable<T> = (callback: (canceled: Canceled) => any) => {
+		cancelCallback.push(callback);
 		return self;
 	};
 
@@ -145,26 +149,45 @@ export default function PinkyPromise<T>(
 
 		if (cancelCallback) {
 			try {
-				if (cancelCallback instanceof Promise || cancelCallback instanceof BluebirdPromise) {
-					cancelCallback(new Canceled(reason))
-						.then(() => {
-							selfReject(new Canceled(reason));
+				let queue: BluebirdPromise<T>[] = [];
+
+				cancelCallback.forEach((cb: PinkyPromiseOnCancel) => {
+					queue.push(
+						new BluebirdPromise((resolve, reject) => {
+							BluebirdPromise.resolve(cb(new Canceled(reason)))
+								.then(resolve)
+								.catch(reject);
 						})
-						.catch((e: any) => {
-							selfReject(e);
-						});
-					return self;
-				}
-				if ("function" === typeof cancelCallback) {
-					Promise.resolve(cancelCallback(new Canceled(reason)))
-						.then(() => {
-							selfReject(new Canceled(reason));
-						})
-						.catch((e: any) => {
-							selfReject(e);
-						});
-					return self;
-				}
+					);
+				});
+
+				BluebirdPromise.all(queue)
+					.then(() => selfReject(new Canceled(reason)))
+					.catch((e: any) => {
+						selfReject(e);
+					});
+				return self;
+
+				// if (cancelCallback instanceof Promise || cancelCallback instanceof BluebirdPromise) {
+				// 	cancelCallback(new Canceled(reason))
+				// 		.then(() => {
+				// 			selfReject(new Canceled(reason));
+				// 		})
+				// 		.catch((e: any) => {
+				// 			selfReject(e);
+				// 		});
+				// 	return self;
+				// }
+				// if ("function" === typeof cancelCallback) {
+				// 	Promise.resolve(cancelCallback(new Canceled(reason)))
+				// 		.then(() => {
+				// 			selfReject(new Canceled(reason));
+				// 		})
+				// 		.catch((e: any) => {
+				// 			selfReject(e);
+				// 		});
+				// 	return self;
+				// }
 			} catch (e: any) {
 				// throw user error
 				selfReject(e);
