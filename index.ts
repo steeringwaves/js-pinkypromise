@@ -49,7 +49,7 @@ export default function PinkyPromise<T>(
 	let cancelled: boolean = false;
 	let ongoing: Promise<T> | BluebirdPromise<T> | any = null;
 	let whileCheck: () => any | BluebirdPromise<T> | Promise<T>;
-	let cancelCallback: PinkyPromiseOnCancel[] = [];
+	const cancelCallback: PinkyPromiseOnCancel[] = [];
 	let intervalMs: number = 0;
 	let attempts: number = 0;
 	let retryAttempts: number = 0;
@@ -149,7 +149,7 @@ export default function PinkyPromise<T>(
 
 		if (cancelCallback) {
 			try {
-				let queue: BluebirdPromise<T>[] = [];
+				const queue: BluebirdPromise<T>[] = [];
 
 				cancelCallback.forEach((cb: PinkyPromiseOnCancel) => {
 					queue.push(
