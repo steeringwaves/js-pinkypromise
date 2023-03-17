@@ -4,14 +4,23 @@
 
 A typescript promise library built for the real world.
 
+## Installation
+
+```sh
+npm install @steeringwaves/context
+npm install @steeringwaves/pinkypromise
+
+# for typescript you also need typings for bluebird
+npm install --save-dev @types/bluebird
+```
+
 ## Example
 
 ### basic usage
 
 ```js
-const BluebirdPromise = require("bluebird");
-const Context = require("@steeringwaves/context").default;
-const PinkyPromise = require("@steeringwaves/pinkypromise").default;
+import Context from "@steeringwaves/context";
+import PinkyPromise, { Cancelable } from "@steeringwaves/pinkypromise";
 
 const fn = () =>
 	new PinkyPromise((resolve, reject) => {
@@ -129,4 +138,24 @@ const fn = () =>
 	});
 
 fn().setContext(ctx).then();
+```
+
+### typescript usage
+
+```ts
+import Context from "@steeringwaves/context";
+import PinkyPromise, { Cancelable } from "@steeringwaves/pinkypromise";
+
+const ctx = new Context();
+
+const fn: Cancelable<void> = () =>
+	new PinkyPromise(
+		(resolve: any, reject: any) => {
+			callback();
+			resolve();
+		},
+		{ Context: ctx }
+	);
+
+fn().then();
 ```
