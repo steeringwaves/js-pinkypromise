@@ -1,6 +1,6 @@
 {
 	"name": "@steeringwaves/pinkypromise",
-	"version": "0.0.4",
+	"version": "0.1.0",
 	"description": "typescript promise library built with the real world in mind",
 	"author": "steeringwaves",
 	"license": "ISC",
