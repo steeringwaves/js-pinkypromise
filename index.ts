@@ -149,20 +149,28 @@ export default function PinkyPromise<T>(
 
 		if (cancelCallback) {
 			try {
-				const queue: BluebirdPromise<T>[] = [];
+				const queue: Array<() => BluebirdPromise<any>> = [];
 
 				cancelCallback.forEach((cb: PinkyPromiseOnCancel) => {
 					queue.push(
-						new BluebirdPromise((resolve, reject) => {
-							BluebirdPromise.resolve(cb(new Canceled(reason)))
-								.then(resolve)
-								.catch(reject);
-						})
+						() =>
+							new BluebirdPromise((resolve, reject) => {
+								BluebirdPromise.resolve(cb(new Canceled(reason)))
+									.then(resolve)
+									.catch(reject);
+							})
 					);
 				});
 
-				BluebirdPromise.all(queue)
-					.then(() => selfReject(new Canceled(reason)))
+				const resultPromise = queue.reduce(
+					(prevPromise, nextPromise) => prevPromise.finally(() => nextPromise()),
+					BluebirdPromise.resolve()
+				);
+
+				resultPromise
+					.then(() => {
+						selfReject(new Canceled(reason));
+					})
 					.catch((e: any) => {
 						selfReject(e);
 					});

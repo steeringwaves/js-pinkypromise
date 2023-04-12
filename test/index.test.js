@@ -456,6 +456,11 @@ describe("PinkyPromise fake time tests", () => {
 		).resolves.not.toThrow();
 		expect(callback).toHaveBeenCalledTimes(2);
 
+		const cancelCallback1 = jest.fn();
+		const cancelCallback2 = jest.fn();
+		const cancelCallback3 = jest.fn();
+		let cancelCount = 0;
+
 		await expect(
 			new PinkyPromise(
 				new BluebirdPromise((resolve, reject) => {
@@ -467,11 +472,42 @@ describe("PinkyPromise fake time tests", () => {
 						})
 						.catch((e) => reject(e));
 				}),
-				{ Context: ctx }
+				{
+					Context: ctx,
+					OnCancel: () => {
+						cancelCount++;
+						process.stderr.write(`cancelCallback1(${cancelCount})\n`);
+						cancelCallback1(cancelCount);
+					}
+				}
 			)
+				.onCancel(
+					// onCancel order is gauranteed :)
+					() =>
+						new Promise((resolve) => {
+							process.stderr.write(`cancelCallback2 promise firing\n`);
+							Sleep(500).then(() => {
+								cancelCount++;
+								process.stderr.write(`cancelCallback2(${cancelCount})\n`);
+								cancelCallback2(cancelCount); // should be called
+								resolve();
+							});
+						})
+				)
+				.onCancel(() => {
+					cancelCount++;
+					process.stderr.write(`cancelCallback3(${cancelCount})\n`);
+					cancelCallback3(cancelCount);
+				})
 		).rejects.toThrow(/context/gi);
 
 		expect(callback).toHaveBeenCalledTimes(3);
+		expect(cancelCallback1).toHaveBeenCalledTimes(1);
+		expect(cancelCallback1).toHaveBeenCalledWith(1);
+		expect(cancelCallback2).toHaveBeenCalledTimes(1);
+		expect(cancelCallback2).toHaveBeenCalledWith(2);
+		expect(cancelCallback3).toHaveBeenCalledTimes(1);
+		expect(cancelCallback3).toHaveBeenCalledWith(3);
 	});
 
 	it("should verify async/await is cancelled properly", async () => {
@@ -491,7 +527,9 @@ describe("PinkyPromise fake time tests", () => {
 					callback(); // should be called
 					resolve();
 				},
-				{ Context: ctx }
+				{
+					Context: ctx
+				}
 			)
 		).resolves.not.toThrow();
 		expect(callback).toHaveBeenCalledTimes(2);
