@@ -476,7 +476,6 @@ describe("PinkyPromise fake time tests", () => {
 					Context: ctx,
 					OnCancel: () => {
 						cancelCount++;
-						process.stderr.write(`cancelCallback1(${cancelCount})\n`);
 						cancelCallback1(cancelCount);
 					}
 				}
@@ -485,10 +484,8 @@ describe("PinkyPromise fake time tests", () => {
 					// onCancel order is gauranteed :)
 					() =>
 						new Promise((resolve) => {
-							process.stderr.write(`cancelCallback2 promise firing\n`);
 							Sleep(500).then(() => {
 								cancelCount++;
-								process.stderr.write(`cancelCallback2(${cancelCount})\n`);
 								cancelCallback2(cancelCount); // should be called
 								resolve();
 							});
@@ -496,7 +493,6 @@ describe("PinkyPromise fake time tests", () => {
 				)
 				.onCancel(() => {
 					cancelCount++;
-					process.stderr.write(`cancelCallback3(${cancelCount})\n`);
 					cancelCallback3(cancelCount);
 				})
 		).rejects.toThrow(/context/gi);
