@@ -1,6 +1,6 @@
 {
 	"name": "@steeringwaves/pinkypromise",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "typescript promise library built with the real world in mind",
 	"author": "steeringwaves",
 	"license": "ISC",
@@ -61,7 +61,7 @@
 		"typescript": "^4.7.4"
 	},
 	"dependencies": {
-		"@steeringwaves/context": "^0.0.5",
+		"@steeringwaves/context": "^0.0.6",
 		"bluebird": "^3.7.2"
 	}
 }
