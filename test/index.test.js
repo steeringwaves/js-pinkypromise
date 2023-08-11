@@ -385,6 +385,7 @@ describe("PinkyPromise fake time tests", () => {
 			)
 		).rejects.toThrow(/context/gi);
 
+		await Sleep(3000);
 		expect(callback).toHaveBeenCalledTimes(2);
 	});
 
@@ -428,6 +429,7 @@ describe("PinkyPromise fake time tests", () => {
 			)
 		).rejects.toThrow(/context/gi);
 
+		await Sleep(3000);
 		expect(callback).toHaveBeenCalledTimes(3);
 	});
 
@@ -471,6 +473,7 @@ describe("PinkyPromise fake time tests", () => {
 			)
 		).rejects.toThrow(/context/gi);
 
+		await Sleep(3000);
 		expect(callback).toHaveBeenCalledTimes(3);
 	});
 
@@ -508,6 +511,7 @@ describe("PinkyPromise fake time tests", () => {
 			)
 		).rejects.toThrow(/context/gi);
 
+		await Sleep(3000);
 		expect(callback).toHaveBeenCalledTimes(3);
 	});
 
@@ -557,6 +561,7 @@ describe("PinkyPromise fake time tests", () => {
 				})
 		).rejects.toThrow(/context/gi);
 
+		await Sleep(3000);
 		expect(callback).not.toBeCalled();
 		expect(cancelCallback1).toHaveBeenCalledTimes(1);
 		expect(cancelCallback1).toHaveBeenCalledWith(1);
@@ -600,6 +605,7 @@ describe("PinkyPromise fake time tests", () => {
 			)
 		).rejects.toThrow(/context/gi);
 
+		await Sleep(3000);
 		expect(callback).toHaveBeenCalledTimes(3);
 	});
 
@@ -618,6 +624,7 @@ describe("PinkyPromise fake time tests", () => {
 				.setContext(ctx)
 		).rejects.toThrow(/context/gi);
 
+		await Sleep(3000);
 		expect(count).toEqual(8);
 	});
 
@@ -640,6 +647,7 @@ describe("PinkyPromise fake time tests", () => {
 			)
 		).rejects.toThrow(/context/gi);
 
+		await Sleep(3000);
 		expect(count).toEqual(8);
 	});
 
@@ -665,6 +673,8 @@ describe("PinkyPromise fake time tests", () => {
 				}
 			)
 		).rejects.toThrow(/context/gi);
+
+		await Sleep(3000);
 		expect(count).toEqual(5);
 	});
 });
