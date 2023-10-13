@@ -1,5 +1,5 @@
 import * as BluebirdPromise from "bluebird";
-import Context from "@steeringwaves/context";
+import type Context from "@steeringwaves/context";
 
 // global.Promise = BluebirdPromise;
 
@@ -295,12 +295,23 @@ export default function PinkyPromise<T>(
 		running = true;
 		try {
 			if ("function" === typeof promise) {
-				ongoing = new BluebirdPromise(promise).then(promResolve, promReject).catch(promReject);
-			} else if (promise instanceof Promise) {
-				const prom: Promise<T> = promise;
-				ongoing = prom.then(promResolve, promReject).catch(promReject);
+				const wrapper = () => {
+					const prom = promise();
+
+					if (prom instanceof BluebirdPromise || prom instanceof Promise) {
+						return prom;
+					}
+
+					return new BluebirdPromise((resolve2, reject2) => {
+						prom.then(resolve2).catch(reject2);
+					});
+				};
+				ongoing = wrapper().then(promResolve, promReject).catch(promReject);
 			} else if (promise instanceof BluebirdPromise) {
 				const prom: BluebirdPromise<T> = promise;
+				ongoing = prom.then(promResolve, promReject).catch(promReject);
+			} else if (promise instanceof Promise) {
+				const prom: Promise<T> = promise;
 				ongoing = prom.then(promResolve, promReject).catch(promReject);
 			} else {
 				throw new Error("Invalid parameters");

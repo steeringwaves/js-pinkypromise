@@ -23,7 +23,7 @@ import Context from "@steeringwaves/context";
 import PinkyPromise, { Cancelable } from "@steeringwaves/pinkypromise";
 
 const fn = () =>
-	new PinkyPromise((resolve, reject) => {
+	new PinkyPromise(new Promise(resolve, reject) => {
 		resolve();
 	});
 
@@ -36,7 +36,7 @@ fn().then();
 let count = 0;
 const fn = () =>
 	new PinkyPromise(
-		(resolve, reject) => {
+		new Promise(resolve, reject) => {
 			count++;
 			resolve();
 		},
@@ -60,7 +60,7 @@ fn()
 let count = 0;
 const fn = () =>
 	new PinkyPromise(
-		(resolve, reject) => {
+		new Promise(resolve, reject) => {
 			if (count < 10) {
 				resolve();
 			} else {
@@ -91,7 +91,7 @@ fn()
 let count = 0;
 const fn = () =>
 	new PinkyPromise(
-		(resolve, reject) => {
+		new Promise(resolve, reject) => {
 			count++;
 			if (count < 10) {
 				reject();
@@ -121,7 +121,7 @@ fn()
 ```js
 const fn = () =>
 	new PinkyPromise(
-		(resolve, reject) => {
+		new Promise(resolve, reject) => {
 			callback();
 			resolve();
 		},
@@ -132,7 +132,7 @@ fn().then();
 
 // or
 const fn = () =>
-	new PinkyPromise((resolve, reject) => {
+	new PinkyPromise(new Promise(resolve, reject) => {
 		callback();
 		resolve();
 	});
@@ -150,7 +150,7 @@ const ctx = new Context();
 
 const fn: Cancelable<void> = () =>
 	new PinkyPromise(
-		(resolve: any, reject: any) => {
+		new Promise(resolve: any, reject: any) => {
 			callback();
 			resolve();
 		},

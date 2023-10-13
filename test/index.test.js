@@ -36,10 +36,11 @@ describe("PinkyPromise real time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				(resolve, reject) => {
-					callback();
-					resolve();
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						callback();
+						resolve();
+					}),
 				{ Context: ctx }
 			)
 		).resolves.not.toThrow();
@@ -51,10 +52,11 @@ describe("PinkyPromise real time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				(resolve, reject) => {
-					callback();
-					resolve();
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						callback();
+						resolve();
+					}),
 				{ Context: ctx }
 			)
 		).rejects.toThrow(/context/gi);
@@ -74,10 +76,11 @@ describe("PinkyPromise real time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				(resolve, reject) => {
-					callback();
-					resolve();
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						callback();
+						resolve();
+					}),
 				{ Context: ctx }
 			)
 		).resolves.not.toThrow();
@@ -89,10 +92,11 @@ describe("PinkyPromise real time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				(resolve, reject) => {
-					callback();
-					resolve();
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						callback();
+						resolve();
+					}),
 				{ Context: ctx }
 			)
 		).rejects.toThrow(/context/gi);
@@ -102,13 +106,14 @@ describe("PinkyPromise real time tests", () => {
 	it("should count to 10 using a Promise as a condition", (done) => {
 		let count = 0;
 		new PinkyPromise(
-			(resolve, reject) => {
-				if (count < 10) {
-					resolve();
-				} else {
-					reject();
-				}
-			},
+			() =>
+				new Promise((resolve, reject) => {
+					if (count < 10) {
+						resolve();
+					} else {
+						reject();
+					}
+				}),
 			{
 				While: () =>
 					new Promise((resolve) => {
@@ -129,10 +134,11 @@ describe("PinkyPromise real time tests", () => {
 	it("should count to 10 using a regular function as a condition", (done) => {
 		let count = 0;
 		new PinkyPromise(
-			(resolve) => {
-				count++;
-				resolve();
-			},
+			() =>
+				new Promise((resolve) => {
+					count++;
+					resolve();
+				}),
 			{
 				While: () => count < 10
 			}
@@ -149,14 +155,15 @@ describe("PinkyPromise real time tests", () => {
 	it("should count past 10 using a Promise as a condition, then fail", (done) => {
 		let count = 0;
 		new PinkyPromise(
-			(resolve, reject) => {
-				count += 3;
-				if (count > 10) {
-					reject(new Error("Counted past 10"));
-				} else {
-					resolve();
-				}
-			},
+			() =>
+				new Promise((resolve, reject) => {
+					count += 3;
+					if (count > 10) {
+						reject(new Error("Counted past 10"));
+					} else {
+						resolve();
+					}
+				}),
 			{
 				While: () =>
 					new Promise((resolve, reject) => {
@@ -180,14 +187,15 @@ describe("PinkyPromise real time tests", () => {
 	it("should count past 10 using a regular function as a condition, then fail", (done) => {
 		let count = 0;
 		new PinkyPromise(
-			(resolve, reject) => {
-				count += 3;
-				if (count > 10) {
-					reject(new Error("Counted past 10"));
-				} else {
-					resolve();
-				}
-			},
+			() =>
+				new Promise((resolve, reject) => {
+					count += 3;
+					if (count > 10) {
+						reject(new Error("Counted past 10"));
+					} else {
+						resolve();
+					}
+				}),
 			{ While: () => count < 10 }
 		)
 			.then(() => {
@@ -202,15 +210,16 @@ describe("PinkyPromise real time tests", () => {
 	it("should count to 3 using a regular function as a condition, then be cancelled", (done) => {
 		let count = 0;
 		const prom = new PinkyPromise(
-			(resolve) => {
-				count += 1;
-				if (count >= 3) {
-					prom.cancel();
-				}
+			() =>
+				new Promise((resolve) => {
+					count += 1;
+					if (count >= 3) {
+						prom.cancel();
+					}
 
-				// NOTE: Technically this stops at 5, given the condition. You must pair cancellation and condition together at the moment.
-				resolve();
-			},
+					// NOTE: Technically this stops at 5, given the condition. You must pair cancellation and condition together at the moment.
+					resolve();
+				}),
 			{ While: () => count < 5 }
 		).finally(() => {
 			expect(count).toEqual(3);
@@ -222,14 +231,15 @@ describe("PinkyPromise real time tests", () => {
 		let count = 0;
 		await expect(
 			new PinkyPromise(
-				(resolve, reject) => {
-					count++;
-					if (count < 10) {
-						reject();
-					} else {
-						resolve();
-					}
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						count++;
+						if (count < 10) {
+							reject();
+						} else {
+							resolve();
+						}
+					}),
 				{
 					Interval: 1,
 					Retries: 10
@@ -251,15 +261,8 @@ describe("PinkyPromise real time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				async (resolve, reject) => {
-					try {
-						await async_function();
-					} catch (error) {
-						reject(error);
-						return;
-					}
-
-					resolve();
+				async () => {
+					await async_function();
 				},
 				{
 					Interval: 1,
@@ -275,14 +278,15 @@ describe("PinkyPromise real time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				async (resolve, reject) => {
-					count++;
-					if (count < 10) {
-						reject(new Error("count too low"));
-					} else {
-						resolve();
-					}
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						count++;
+						if (count < 10) {
+							reject(new Error("count too low"));
+						} else {
+							resolve();
+						}
+					}),
 				{
 					Interval: 1,
 					Retries: 5
@@ -297,13 +301,14 @@ describe("PinkyPromise real time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				async (resolve, reject) => {
-					if (count < 10) {
-						reject(new Error("count too low"));
-					} else {
-						resolve();
-					}
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						if (count < 10) {
+							reject(new Error("count too low"));
+						} else {
+							resolve();
+						}
+					}),
 				{
 					Interval: 1,
 					Retries: 5
@@ -349,10 +354,11 @@ describe("PinkyPromise fake time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				(resolve, reject) => {
-					callback();
-					resolve();
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						callback();
+						resolve();
+					}),
 				{ Context: ctx }
 			)
 		).resolves.not.toThrow();
@@ -363,10 +369,11 @@ describe("PinkyPromise fake time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				(resolve, reject) => {
-					callback();
-					resolve();
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						callback();
+						resolve();
+					}),
 				{ Context: ctx }
 			)
 		).resolves.not.toThrow();
@@ -485,11 +492,10 @@ describe("PinkyPromise fake time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				async (resolve) => {
+				async () => {
 					callback(); // should be called
 					await Sleep(500);
 					callback(); // should be called
-					resolve();
 				},
 				{ Context: ctx }
 			)
@@ -498,11 +504,10 @@ describe("PinkyPromise fake time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				async (resolve) => {
+				async () => {
 					callback(); // should be called
 					await Sleep(2000);
 					callback(); // should not be called
-					resolve();
 				},
 				{ Context: ctx }
 			)
@@ -577,11 +582,10 @@ describe("PinkyPromise fake time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				async (resolve) => {
+				async () => {
 					callback(); // should be called
 					await Sleep(500);
 					callback(); // should be called
-					resolve();
 				},
 				{ Context: ctx }
 			)
@@ -590,11 +594,10 @@ describe("PinkyPromise fake time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				async (resolve) => {
+				async () => {
 					callback(); // should be called
 					await Sleep(2000);
 					callback(); // should not be called
-					resolve();
 				},
 				{ Context: ctx }
 			)
@@ -609,9 +612,8 @@ describe("PinkyPromise fake time tests", () => {
 		const ctx = new Context({ Timeout: 1500 });
 
 		await expect(
-			new PinkyPromise(async (resolve) => {
+			new PinkyPromise(async () => {
 				count++;
-				resolve();
 			})
 				.setWhile(() => count < 10)
 				.setInterval(200)
@@ -628,10 +630,11 @@ describe("PinkyPromise fake time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				(resolve) => {
-					count++;
-					resolve();
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						count++;
+						resolve();
+					}),
 				{
 					Interval: 200,
 					Context: ctx,
@@ -650,14 +653,15 @@ describe("PinkyPromise fake time tests", () => {
 
 		await expect(
 			new PinkyPromise(
-				async (resolve, reject) => {
-					count++;
-					if (count < 10) {
-						reject(new Error("count too low"));
-					} else {
-						resolve();
-					}
-				},
+				() =>
+					new Promise((resolve, reject) => {
+						count++;
+						if (count < 10) {
+							reject(new Error("count too low"));
+						} else {
+							resolve();
+						}
+					}),
 				{
 					Interval: 200,
 					Retries: 10,
